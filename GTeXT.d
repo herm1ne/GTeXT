@@ -23,6 +23,10 @@ import std.array;
 import std.conv;
 import std.file;
 import std.string;
+import std.regex;
+import std.utf;
+import std.format;
+import std.encoding;
 
 //ディレクトリの要素の構造体
 struct pdfRecord{
@@ -45,27 +49,80 @@ string outputFile;
 
 void main(){
 
-	//出力ファイル名
-	outputFile = "output.pdf";
+	//PDF書き出し
+	parser();
+	outputpdf();
 
-	//ファイルが存在すれば消す(擬似的な上書き)
-	if(std.file.exists(outputFile) == true){
-		std.file.remove(outputFile);
-	}
+}
 
-	//テスト用にPDFのオブジェクトを手動で追加した
-	//0 0 objは空(プログラムの簡易化のために下駄を履かせた)
+void parser(){
+	//デバッグを素早く行うため入力ファイル名はあらかじめ記入しておいた
+	string inputFile = "input.gt";
+
+	//ADD 0 0 obj
 	pdfObject obj;
 	pdfObjects ~= obj;
 
-	//1 0 obj
+	//ADD 1 0 obj(ROOT)
 	obj.records = null;
 	obj.stream = null;
 	obj.records ~= pdfRecord("/Type","/Catalog");
-	obj.records ~= pdfRecord("/Pages","2 0 R");
+	obj.records ~= pdfRecord("/Pages","3 0 R");
 	pdfObjects ~= obj;
 
-	//2 0 obj
+	auto fin = File(inputFile,"r");
+
+	//PDFのメタ情報を格納する変数
+	string title;
+	string author;
+
+	string line;
+	string[] command;
+
+	bool mathMode = false;
+	bool subcommandMode = false;
+
+	string subcommand;
+
+	while(!fin.eof){
+		line = fin.readln.chomp;	//.chompで改行コードを除去
+		if(line.length >= 2){
+			if(line[0 .. 2] == "#!"){
+				//コマンド行
+				line = line[2 .. $];
+				command = line.split(" ");
+				switch(command[0]){
+					case "title":
+						title = command[1];
+						break;
+					case "author":
+						author = command[1];
+						break;
+					default:
+				}
+			}
+		}
+	}
+
+	//デバッグのため出力
+	writeln("title: " ~ title);
+	writeln("author: " ~ author);
+
+	if(title == null){
+		outputFile = "noname.pdf";
+	}else{
+		outputFile = title ~ ".pdf";
+	}
+
+	//ADD 2 0 obj (INFO)
+	obj.records = null;
+	obj.stream = null;
+	obj.records ~= pdfRecord("/Title","(" ~ title ~ ")");
+	obj.records ~= pdfRecord("/Author","(" ~ author ~ ")");
+	obj.records ~= pdfRecord("/Creator", "(GTeXT)");
+	pdfObjects ~= obj;
+
+	//ADD 3 0 obj (PAGETREE)
 	obj.records = null;
 	obj.stream = null;
 	obj.records ~= pdfRecord("/Type","/Pages");
@@ -73,43 +130,29 @@ void main(){
 	obj.records ~= pdfRecord("/Count", "1");
 	pdfObjects ~= obj;
 
-	//3 0 obj
+	//ADD 4 0 obj (PAGEOBJECT)
+	obj.records = null;
+	obj.stream = null;
+	obj.records ~= pdfRecord("/Type","/Page");
+	obj.records ~= pdfRecord("/Parent","3 0 R");
+	obj.records ~= pdfRecord("/Resources","5 0 R");
+	obj.records ~= pdfRecord("/MediaBox","[0 0 595 842]");
+	obj.records ~= pdfRecord("/Contents","11 0 R");
+	pdfObjects ~= obj;
+
+	//ADD 5 0 obj (Resources)
 	obj.records = null;
 	obj.stream = null;
 	obj.records ~= pdfRecord("/Font","6 0 R");
 	pdfObjects ~= obj;
 
-	//4 0 obj
-	obj.records = null;
-	obj.stream = null;
-	obj.records ~= pdfRecord("/Type","/Page");
-	obj.records ~= pdfRecord("/Parent","2 0 R");
-	obj.records ~= pdfRecord("/Resources","3 0 R");
-	obj.records ~= pdfRecord("/MediaBox","[0 0 595 842]");
-	obj.records ~= pdfRecord("/Contents","5 0 R");
-	pdfObjects ~= obj;
-
-	//5 0 obj
-	obj.records = null;
-	obj.stream = null;
-	obj.records ~= pdfRecord("/Length","58");
-	obj.stream ~= "1. 0. 0. 1. 50. 720. cm"; 
-	obj.stream ~= "BT";
-	obj.stream ~= "/F0 36 Tf";
-	obj.stream ~= "40 TL";
-	obj.stream ~= "<00480065006c006c006f002c0077006f0072006c0064> Tj T*";
-	obj.stream ~= "<005f0028003a0033300d002022200029005f> Tj T*";
-	obj.stream ~= "<65e5672c8a9e3092542b30933060005000440046> Tj";
-	obj.stream ~= "ET";
-	pdfObjects ~= obj;
-
-	//6 0 obj
+	//ADD 6 0 obj (Font)
 	obj.records = null;
 	obj.stream = null;
 	obj.records ~= pdfRecord("/F0","7 0 R");
 	pdfObjects ~= obj;
 
-	//7 0 obj
+	//ADD 7 0 obj(F0)
 	obj.records = null;
 	obj.stream = null;
 	obj.records ~= pdfRecord("/Type","/Font");
@@ -119,7 +162,7 @@ void main(){
 	obj.records ~= pdfRecord("/DescendantFonts","[8 0 R]");
 	pdfObjects ~= obj;
 
-	//8 0 obj
+	//ADD 8 0 obj(DesendantFonts)
 	obj.records = null;
 	obj.stream = null;
 	obj.records ~= pdfRecord("/Type","/Font");
@@ -129,7 +172,7 @@ void main(){
 	obj.records ~= pdfRecord("/FontDescriptor","10 0 R");
 	pdfObjects ~= obj;
 	
-	//9 0 obj
+	//ADD 9 0 obj
 	obj.records = null;
 	obj.stream = null;
 	obj.records ~= pdfRecord("/Registry","(Adobe)");
@@ -137,7 +180,7 @@ void main(){
 	obj.records ~= pdfRecord("/Supplement","6");
 	pdfObjects ~= obj;
 	
-	//10 0 obj
+	//ADD 10 0 obj
 	obj.records = null;
 	obj.stream = null;
 	obj.records ~= pdfRecord("/Type","/FontDescriptor");
@@ -151,15 +194,94 @@ void main(){
 	obj.records ~= pdfRecord("/StemV","80");
 	pdfObjects ~= obj;
 
-	//PDF書き出し
-	outputpdf();
+	//ファイル読み込みのシーカーを頭に戻す
+	fin.rewind();
+
+	//11 obj
+	obj.records = null;
+	obj.stream = null;
+	obj.records ~= pdfRecord("/Length","58");
+	obj.stream ~= "1. 0. 0. 1. 50. 720. cm"; 
+	obj.stream ~= "BT";
+	obj.stream ~= "/F0 36 Tf";
+	obj.stream ~= "40 TL";
+	obj.stream ~= "<";
+
+	while(!fin.eof){
+		line = fin.readln.chomp;
+		//コマンド行もしくは空行であればスキップ
+		if(line.length == 0){
+			//空行はパラグラフ変更である
+			continue;
+		}else if(line.length >= 2){
+			if(line[0 .. 2] == "#!"){
+				continue;
+			}
+		}
+
+		//1文字ずつ処理する
+		foreach(str;line){
+			if(subcommandMode == true){
+				if(match(to!string(str),r"[a-z]|[A-Z]")){
+					subcommand ~= str;
+				}else{
+					write("!subcommand: " ~ subcommand ~ "!");
+					subcommand = "";
+					subcommandMode = false;
+
+					if(str == '['){
+						if(mathMode == true){
+							writeln("error! \"[\"in[]");
+						}else{
+							write("!mathModein!");
+							mathMode = true;
+						}
+					}
+				}
+			}else{
+				switch(str){
+					case '[':
+						if(mathMode == true){
+							writeln("error! \"[\"in[]");
+						}else{
+							write("!mathModein!");
+							mathMode = true;
+						}
+						break;
+					case ']':
+						if(mathMode == true){
+							mathMode = false;
+							write("!mathModeout!");
+						}else{
+							writeln("error! \"[\"in[]");
+
+						}
+						break;
+					case '#':
+						subcommandMode = true;
+						break;
+					default:
+						write(str);
+						auto writer = appender!string();
+						wchar buff = to!wchar(str);
+						formattedWrite(writer,"%x",buff);
+						obj.stream[$-1] ~= writer.data;
+				}
+			}
+		}
+		write("\n");
+	}
+	obj.stream[$-1] ~= "> Tj T*";
+	obj.stream ~= "ET";
+	pdfObjects ~= obj;
+
 
 }
 
 
 void outputpdf(){
 
-	auto fout = File(outputFile,"a");
+	auto fout = File(outputFile,"w");
 
 	//ヘッダ
 	fout.writeln("%PDF-1.3");

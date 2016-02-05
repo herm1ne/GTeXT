@@ -1,0 +1,114 @@
+%PDF-1.3
+%”œ„‚
+1 0 obj
+<<
+/Type /Catalog
+/Pages 3 0 R
+>>
+endobj
+2 0 obj
+<<
+/Title (hogehoge)
+/Author (piyopiyo)
+/Creator (GTeXT)
+>>
+endobj
+3 0 obj
+<<
+/Type /Pages
+/Kids [4 0 R]
+/Count 1
+>>
+endobj
+4 0 obj
+<<
+/Type /Page
+/Parent 3 0 R
+/Resources 5 0 R
+/MediaBox [0 0 595 842]
+/Contents 11 0 R
+>>
+endobj
+5 0 obj
+<<
+/Font 6 0 R
+>>
+endobj
+6 0 obj
+<<
+/F0 7 0 R
+>>
+endobj
+7 0 obj
+<<
+/Type /Font
+/BaseFont /KozMinPro6N-Regular
+/Subtype /Type0
+/Encoding /UniJIS-UTF16-H
+/DescendantFonts [8 0 R]
+>>
+endobj
+8 0 obj
+<<
+/Type /Font
+/Subtype /CIDFontType0
+/BaseFont /KozMinPr6N-Regular
+/CIDSystemInfo 9 0 R
+/FontDescriptor 10 0 R
+>>
+endobj
+9 0 obj
+<<
+/Registry (Adobe)
+/Ordering (Japan1)
+/Supplement 6
+>>
+endobj
+10 0 obj
+<<
+/Type /FontDescriptor
+/FontName /KozMinPro6N-Regular
+/Flags 4
+/FontBBox [-437 -340 1147 1317]
+/ItalicAngle 0
+/Ascent 1317
+/Descent -349
+/CapHeight 742
+/StemV 80
+>>
+endobj
+11 0 obj
+<<
+/Length 58
+>>
+stream
+1. 0. 0. 1. 50. 720. cm
+BT
+/F0 36 Tf
+40 TL
+<e697a5e69cace8aa9e> Tj T*
+ET
+endstream
+endobj
+xref
+0 12
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000139 00000 n 
+0000000196 00000 n 
+0000000301 00000 n 
+0000000334 00000 n 
+0000000365 00000 n 
+0000000496 00000 n 
+0000000626 00000 n 
+0000000698 00000 n 
+0000000881 00000 n 
+trailer
+<<
+/Size 12
+/Root 1 0 R
+>>
+startxref
+1004
+%%eof
